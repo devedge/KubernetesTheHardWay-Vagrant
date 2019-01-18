@@ -1,7 +1,7 @@
 # KubernetesTheHardWay-Vagrant
 Following the "[Kubernetes The Hard Way](https://github.com/kelseyhightower/kubernetes-the-hard-way)" tutorial, using Vagrant &amp; VirtualBox
 
-This guide closely follows [Kinvolk's version](https://github.com/kinvolk/kubernetes-the-hard-way-vagrant), which uses [`cri-o`](https://cri-o.io) instead of [`containerd`](https://github.com/containerd/containerd) for the runtime interface.
+This is my walkthrough of manually setting up [Kinvolk's version](https://github.com/kinvolk/kubernetes-the-hard-way-vagrant), which uses [`cri-o`](https://cri-o.io) instead of [`containerd`](https://github.com/containerd/containerd) for the runtime interface.
 
 ### Setup
 Required tools:
@@ -39,6 +39,7 @@ Next, add the load balancer. The script for autocompletion is commented out now,
 
 ```ruby
     ...
+
     # Load balancer, haproxy
     config.vm.define "lb-0" do |c|
       c.vm.hostname = "lb-0"
@@ -51,8 +52,8 @@ Next, add the load balancer. The script for autocompletion is commented out now,
         vb.memory = "256"
       end
     end
+
     ...
-end
 ```
 
 Bring up the current Vagrant configuration, which is just the load balancer:
@@ -76,6 +77,7 @@ In the haproxy configuration file located at `/etc/haproxy/haproxy.cfg`, under t
 frontend k8s
     bind 192.168.199.40:6443
     default_backend k8s_backend
+
 backend k8s_backend
     balance roundrobin
     mode tcp
@@ -83,7 +85,7 @@ backend k8s_backend
     server controller-1 192.168.199.11:6443 check inter 1000
     server controller-2 192.168.199.12:6443 check inter 1000
 ```
-_The full configuration file can be found under scripts/build/vagrant-setup-haproxy.bash_
+_The configuration script can be found under `scripts/build/vagrant-setup-haproxy.bash`_
 
 Restart haproxy with `sudo systemctl restart haproxy`
 
