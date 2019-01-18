@@ -6,7 +6,6 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "512"
     vb.customize ["modifyvm", :id, "--audio", "none"]
-    vb.gui = false
   end
 
   # Load balancer, haproxy
@@ -15,7 +14,7 @@ Vagrant.configure("2") do |config|
       c.vm.network "private_network", ip: "192.168.199.40"
 
       # will be done manually first
-      # c.vm.provision :shell, :path => "scripts/vagrant-setup-haproxy.bash"
+      # c.vm.provision :shell, :path => "scripts/build/vagrant-setup-haproxy.bash"
 
       c.vm.provider "virtualbox" do |vb|
         vb.memory = "256"
