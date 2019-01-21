@@ -122,3 +122,41 @@ Add the three controller nodes, which are numbered 0-2.
 192.168.199.22 worker-2
 ```
 
+## Workers
+Add three worker nodes to the Vagrantfile. These will also be numbered 0-2.
+
+```ruby
+    ...
+  
+    (0..2).each do |n|
+      config.vm.define "worker-#{n}" do |c|
+          c.vm.hostname = "worker-#{n}"
+          c.vm.network "private_network", ip: "192.168.199.2#{n}"
+
+          # c.vm.provision :shell, :path => "scripts/build/vagrant-setup-routes.bash"
+          # c.vm.provision :shell, :path => "scripts/build/vagrant-setup-hosts-file.bash"
+      end
+    end
+
+    ...
+```
+
+Set up the hosts file just as in the controllers. Then, run these commands in each respective node to configure networking routes:
+
+**`worker-0`**
+```
+sudo route add -net 10.21.0.0/16 gw 192.168.199.21
+sudo route add -net 10.22.0.0/16 gw 192.168.199.22
+```
+
+**`worker-1`**
+```
+sudo route add -net 10.20.0.0/16 gw 192.168.199.20
+sudo route add -net 10.22.0.0/16 gw 192.168.199.22
+```
+
+**`worker-2`**
+```
+sudo route add -net 10.20.0.0/16 gw 192.168.199.20
+sudo route add -net 10.21.0.0/16 gw 192.168.199.21
+```
