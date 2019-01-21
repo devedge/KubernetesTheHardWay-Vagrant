@@ -99,7 +99,7 @@ Add the three controller nodes, which are numbered 0-2.
           c.vm.network "private_network", ip: "192.168.199.1#{n}"
   
           # commented out, to do manually
-          # c.vm.provision :shell, :path => "scripts/vagrant-setup-hosts-file.bash"
+          # c.vm.provision :shell, :path => "scripts/build/vagrant-setup-hosts-file.bash"
   
           c.vm.provider "virtualbox" do |vb|
             vb.memory = "640"
