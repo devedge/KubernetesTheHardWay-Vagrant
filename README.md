@@ -160,3 +160,27 @@ sudo route add -net 10.22.0.0/16 gw 192.168.199.22
 sudo route add -net 10.20.0.0/16 gw 192.168.199.20
 sudo route add -net 10.21.0.0/16 gw 192.168.199.21
 ```
+
+## Loadbalancer, Traefik
+Set up the load balancer, which will be used later.
+
+```ruby
+    ...
+
+    config.vm.define "traefik-0", autostart: false do |c|
+        c.vm.hostname = "traefik-0"
+        c.vm.network "private_network", ip: "192.168.199.30"
+  
+        # c.vm.provision :shell, :path => "scripts/build/vagrant-setup-routes.bash"
+    end
+```
+
+In the load balancer, add routes to every worker node:
+```
+route add -net 10.20.0.0/16 gw 192.168.199.20
+route add -net 10.21.0.0/16 gw 192.168.199.21
+route add -net 10.22.0.0/16 gw 192.168.199.22
+```
+
+---
+
