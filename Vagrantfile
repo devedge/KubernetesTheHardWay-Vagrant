@@ -20,4 +20,18 @@ Vagrant.configure("2") do |config|
       end
   end
 
+  (0..2).each do |n|
+    config.vm.define "controller-#{n}" do |c|
+        c.vm.hostname = "controller-#{n}"
+        c.vm.network "private_network", ip: "192.168.199.1#{n}"
+
+        # commented out, to do manually
+        # c.vm.provision :shell, :path => "scripts/vagrant-setup-hosts-file.bash"
+
+        c.vm.provider "virtualbox" do |vb|
+          vb.memory = "640"
+        end
+    end
+  end
+
 end

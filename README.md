@@ -3,7 +3,7 @@ Following the "[Kubernetes The Hard Way](https://github.com/kelseyhightower/kube
 
 This is my walkthrough of manually setting up [Kinvolk's version](https://github.com/kinvolk/kubernetes-the-hard-way-vagrant), which uses [`cri-o`](https://cri-o.io) instead of [`containerd`](https://github.com/containerd/containerd) for the runtime interface.
 
-### Setup
+## Setup
 Required tools:
 
 `brew cask install virtualbox`
@@ -14,10 +14,8 @@ Required tools:
 
 `brew install kubectl`
 
-`vagrant plugin install vagrant-disksize`
 
-
-### Vagrantfile
+## Vagrantfile
 The first step is to initialize a Vagrantfile. Here, the VM is ubuntu-16.04 (using the recommended `bento` image), and the default memory is set at 512MB. There is no officially supported way to specify initial disk size.
 
 ```ruby
@@ -34,7 +32,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-### Load Balancer - haproxy
+## Load Balancer - haproxy
 Next, add the load balancer. The script for autocompletion is commented out now, so we can configure haproxy manually.
 
 ```ruby
@@ -88,4 +86,39 @@ backend k8s_backend
 _The configuration script can be found under `scripts/build/vagrant-setup-haproxy.bash`_
 
 Restart haproxy with `sudo systemctl restart haproxy`
+
+## Controllers
+Add the three controller nodes, which are numbered 0-2.
+
+```ruby
+    ...
+
+    (0..2).each do |n|
+      config.vm.define "controller-#{n}" do |c|
+          c.vm.hostname = "controller-#{n}"
+          c.vm.network "private_network", ip: "192.168.199.1#{n}"
+  
+          # commented out, to do manually
+          # c.vm.provision :shell, :path => "scripts/vagrant-setup-hosts-file.bash"
+  
+          c.vm.provider "virtualbox" do |vb|
+            vb.memory = "640"
+          end
+      end
+    end
+
+    ...
+```
+
+`ssh` into each of the controller nodes, and append this to the `/etc/hosts` file:
+
+```
+# KTHW Vagrant machines
+192.168.199.10 controller-0
+192.168.199.11 controller-1
+192.168.199.12 controller-2
+192.168.199.20 worker-0
+192.168.199.21 worker-1
+192.168.199.22 worker-2
+```
 
