@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-## Load Balancer - haproxy
+### Load Balancer - haproxy
 Next, add the load balancer. The script for autocompletion is commented out now, so we can configure haproxy manually.
 
 ```ruby
@@ -87,7 +87,7 @@ _The configuration script can be found under `scripts/build/vagrant-setup-haprox
 
 Restart haproxy with `sudo systemctl restart haproxy`
 
-## Controllers
+### Controllers
 Add the three controller nodes, which are numbered 0-2.
 
 ```ruby
@@ -122,7 +122,7 @@ Add the three controller nodes, which are numbered 0-2.
 192.168.199.22 worker-2
 ```
 
-## Workers
+### Workers
 Add three worker nodes to the Vagrantfile. These will also be numbered 0-2.
 
 ```ruby
@@ -161,7 +161,7 @@ sudo route add -net 10.20.0.0/16 gw 192.168.199.20
 sudo route add -net 10.21.0.0/16 gw 192.168.199.21
 ```
 
-## Loadbalancer, Traefik
+### Loadbalancer, Traefik
 Set up the load balancer, which will be used later.
 
 ```ruby
@@ -177,10 +177,57 @@ Set up the load balancer, which will be used later.
 
 In the load balancer, add routes to every worker node:
 ```
-route add -net 10.20.0.0/16 gw 192.168.199.20
-route add -net 10.21.0.0/16 gw 192.168.199.21
-route add -net 10.22.0.0/16 gw 192.168.199.22
+sudo route add -net 10.20.0.0/16 gw 192.168.199.20
+sudo route add -net 10.21.0.0/16 gw 192.168.199.21
+sudo route add -net 10.22.0.0/16 gw 192.168.199.22
 ```
 
----
+## Configuring PKI Infrastructure
+Then, we'll set up a PKI infrastructure for the cluster, using the `cfssl` tool. A certificate authority will be created, and then TLS will be generated for a number of Kubernetes components.
+
+### Creating the Certificate Authority
+Create 2 JSON files:
+
+**`ca-config.json`**
+```json
+{
+  "signing": {
+    "default": {
+      "expiry": "8760h"
+    },
+    "profiles": {
+      "kubernetes": {
+        "usages": ["signing", "key encipherment", "server auth", "client auth"],
+        "expiry": "8760h"
+      }
+    }
+  }
+}
+```
+
+**`ca-csr.json`**
+```json
+{
+  "CN": "Kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "Kubernetes",
+      "OU": "CA",
+      "ST": "Oregon"
+    }
+  ]
+}
+```
+
+Then, generate a new CA Key and certificate with:
+
+`$ cfssl gencert -initca ca-csr.json | cfssljson -bare ca`
+
+Three new files will be created in the current directory, `ca.csr`, `ca.pem`, and `ca-key.pem`
 
